@@ -17,6 +17,14 @@ import { AuthProvider } from "@/contexts/auth-context"
 import { VeChainProvider } from '@/providers/VeChainProvider'
 import { I18nProvider } from '@/contexts/i18n-context'
 
+/**
+ * Root Layout Component
+ * 
+ * This file sets up the application layout, font configuration,
+ * metadata, and the provider hierarchy for the entire application.
+ */
+
+// Configure the main fonts for the application
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 const dancingScript = Dancing_Script({
   subsets: ["latin"],
@@ -24,6 +32,7 @@ const dancingScript = Dancing_Script({
   display: "swap",
 })
 
+// Define application metadata for SEO
 export const metadata: Metadata = {
   title: "ReVive - Sustainable Second-Hand Marketplace",
   description: "Buy and sell pre-loved items, earn rewards for sustainable choices",
@@ -31,6 +40,16 @@ export const metadata: Metadata = {
   generator: 'v0.dev'
 }
 
+/**
+ * Root Layout Component
+ * 
+ * Provides the base structure for all pages including:
+ * - Font configuration
+ * - Context providers for state management
+ * - Main layout structure (navbar, main content, footer)
+ * - Theme provider for light/dark mode
+ * - VeChain integration for blockchain functionality
+ */
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -39,7 +58,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${dancingScript.variable} font-sans antialiased`}>
       <body className={inter.className}>
+        {/* VeChain Provider for blockchain wallet integration */}
         <VeChainProvider>
+          {/* Theme Provider for light/dark mode */}
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -47,13 +68,21 @@ export default function RootLayout({
             disableTransitionOnChange
             storageKey="revive-theme"
           >
+            {/* Internationalization Provider */}
             <I18nProvider>
+              {/* Network Provider for blockchain network selection */}
               <NetworkProvider>
+                {/* Authentication Provider for user management */}
                 <AuthProvider>
+                  {/* Wallet Provider for cryptocurrency operations */}
                   <WalletProvider>
+                    {/* Token Provider for B3TR token ecosystem */}
                     <TokenProvider>
+                      {/* Transaction Provider for blockchain transactions */}
                       <TransactionProvider>
+                        {/* Cart Provider for shopping cart functionality */}
                         <CartProvider>
+                          {/* Wishlist Provider for saved items */}
                           <WishlistProvider>
                             <div className="relative min-h-screen flex flex-col bg-background">
                               <Navbar />

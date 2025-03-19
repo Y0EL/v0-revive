@@ -4,6 +4,13 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from "
 import { useDemoWallet } from "@/providers/demo-wallet-provider"
 import { useToast } from "@/components/ui/use-toast"
 
+/**
+ * Authentication Context Module
+ * 
+ * This file handles user authentication, profile management and wallet integration.
+ * It provides authentication state and methods throughout the application.
+ */
+
 // Define user profile type
 export type UserProfile = {
   id: string
@@ -12,7 +19,7 @@ export type UserProfile = {
   phone: string | null
   walletAddress: string
   createdAt: Date
-  b3trBalance?: number // Added B3TR balance
+  b3trBalance?: number // B3TR token balance
 }
 
 // Define authentication context type
@@ -25,10 +32,10 @@ interface AuthContextType {
   loginWithSocial: (provider: "veworld" | "x" | "google" | "phone", identifier: string) => Promise<boolean>
   logout: () => void
   updateProfile: (data: Partial<Omit<UserProfile, "id" | "walletAddress" | "createdAt">>) => Promise<boolean>
-  updateB3TRBalance: (amount: number) => void // Added method to update B3TR balance
+  updateB3TRBalance: (amount: number) => void // Method to update B3TR balance
 }
 
-// Create the context
+// Create the context with default values
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoading: false,
@@ -41,22 +48,34 @@ const AuthContext = createContext<AuthContextType>({
   updateB3TRBalance: () => {},
 })
 
-// Generate a mock wallet address
+/**
+ * Generates a random mock wallet address for demo purposes
+ * @returns A random Ethereum-style wallet address
+ */
 const generateWalletAddress = (): string => {
   return `0x${Array.from({ length: 40 }, () => Math.floor(Math.random() * 16).toString(16)).join("")}`
 }
 
-// Generate a unique user ID
+/**
+ * Generates a unique user ID
+ * @returns A unique user identifier string
+ */
 const generateUserId = (): string => {
   return `user_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
 }
 
-// Generate random B3TR balance
+/**
+ * Generates a random B3TR token balance for demo accounts
+ * @returns A random balance between 100 and 1100
+ */
 const generateRandomB3TRBalance = (): number => {
   return Math.floor(Math.random() * 1000) + 100 // Random balance between 100 and 1100
 }
 
-// Provider component
+/**
+ * Authentication Provider Component
+ * Manages authentication state and provides auth methods to the application
+ */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -67,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        // Periksa apakah ada data user di localStorage
+        // Check if user data exists in localStorage
         const storedUser = localStorage.getItem("user")
         if (storedUser) {
           const parsedUser = JSON.parse(storedUser)
@@ -86,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } catch (error) {
         console.error("Error checking session:", error)
-        // Jangan hapus user state jika terjadi error
+        // Don't clear user state if an error occurs
       } finally {
         setIsLoading(false)
       }
@@ -95,7 +114,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkSession()
   }, [demoWallet])
 
-  // Update B3TR balance
+  /**
+   * Updates the user's B3TR token balance
+   * @param amount - The new balance amount
+   */
   const updateB3TRBalance = (amount: number) => {
     if (!user) return
 
@@ -108,7 +130,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("user", JSON.stringify(updatedUser))
   }
 
-  // Register a new user - modified to use actual wallet if available
+  /**
+   * Registers a new user account
+   * Uses actual wallet if available, otherwise generates a mock one
+   */
   const register = async (username: string, email: string, password: string): Promise<boolean> => {
     setIsLoading(true)
     try {
@@ -156,7 +181,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // Login with email/username and password - modified to use actual wallet if available
+  /**
+   * Authenticates a user with identifier (email/username) and password
+   * Uses actual wallet if available, otherwise uses/generates a mock one
+   */
   const login = async (identifier: string, password: string): Promise<boolean> => {
     setIsLoading(true)
     try {
@@ -193,7 +221,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      // Simpan user ke localStorage
+      // Save user to localStorage
       localStorage.setItem("user", JSON.stringify(userToLogin))
 
       // Update state
@@ -227,7 +255,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // Login with social provider
+  /**
+   * Authenticates a user with a social provider
+   * Supports VeWorld, X (Twitter), Google, and phone authentication
+   */
   const loginWithSocial = async (
     provider: "veworld" | "x" | "google" | "phone",
     identifier: string,
@@ -324,7 +355,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // Logout
+  /**
+   * Logs out the current user and clears session data
+   */
   const logout = () => {
     setUser(null)
     demoWallet.disconnect()
@@ -336,7 +369,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
   }
 
-  // UpdateProfile with improved wallet handling
+  /**
+   * Updates the user's profile information
+   * @param data - The profile data to update
+   */
   const updateProfile = async (
     data: Partial<Omit<UserProfile, "id" | "walletAddress" | "createdAt">>,
   ): Promise<boolean> => {
@@ -403,6 +439,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   )
 }
 
-// Hook to use the auth context
+/**
+ * Custom hook to access the auth context
+ * @returns The authentication context
+ */
 export const useAuth = () => useContext(AuthContext)
 
